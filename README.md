@@ -1,4 +1,4 @@
-# Liquid Worms
+## Liquid Worms
 
 Just an animation of elements with a liquid effect
 
