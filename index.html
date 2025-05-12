@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drichdev Liquid Worms</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      filter: blur(5px) contrast(10%);
+    }
+
+    .text {
+      font-family: 'Space Mono', monospace;
+      filter: blur(5px) contrast(10%);
+      color: #ffffff;
+      font-size: 15vw;
+      font-weight: bold;
+      text-align: center;
+      line-height: 100vh;
+      width: 100%;
+      position: absolute;
+      z-index: 1;
+      mix-blend-mode: lighten;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div class="text">Drichdev</div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    class Worm {
+      constructor() {
+        this.points = [];
+        this.length = 30 + Math.floor(Math.random() * 10);
+        this.baseRadius = 40 + Math.random() * 50;
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        for (let i = 0; i < this.length; i++) {
+          this.points.push({ x, y });
+        }
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = 0.4 + Math.random() * 0.2;
+        this.turnRate = 0.05 * (Math.random() > 0.5 ? 1 : -1);
+        this.time = Math.random() * 1000;
+      }
+
+      update() {
+        this.angle += this.turnRate * (Math.random() - 0.5);
+        const head = {
+          x: this.points[0].x + Math.cos(this.angle) * this.speed,
+          y: this.points[0].y + Math.sin(this.angle) * this.speed
+        };
+
+        if (head.x < 0 || head.x > width || head.y < 0 || head.y > height) {
+          this.angle += Math.PI;
+        }
+
+        this.points.unshift(head);
+        this.points.pop();
+        this.time += 0.05;
+      }
+
+      draw(ctx) {
+        ctx.beginPath();
+        for (let i = 0; i < this.points.length; i++) {
+          const p = this.points[i];
+          // Variation sinus pour donner un effet de déformation organique
+          const pulse = Math.sin(this.time + i * 0.5) * 5;
+          const radiusX = (this.baseRadius + pulse) * (1 - i / this.points.length);
+          const radiusY = (this.baseRadius - pulse) * (1 - i / this.points.length);
+          ctx.ellipse(p.x, p.y, radiusX, radiusY, 0, 0, Math.PI * 2);
+        }
+        ctx.fillStyle = 'rgba(255, 255, 255, 255)';
+        ctx.fill();
+      }
+    }
+
+    const worms = [];
+    for (let i = 0; i < 30; i++) {
+      worms.push(new Worm());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (const worm of worms) {
+        worm.update();
+        worm.draw(ctx);
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
